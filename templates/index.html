@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Daily Planner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1 class="main-title">🌟 My Smart Daily Planner 🌟</h1>
+
+  <!-- Add Task Form -->
+  <div class="form-box">
+    <form method="POST" action="/add">
+      <input type="text" name="title" placeholder="Task title..." required>
+      <input type="datetime-local" name="due_date">
+      <select name="category">
+        <option value="morning">🌅 Morning</option>
+        <option value="afternoon">🌞 Afternoon</option>
+        <option value="evening">🌆 Evening</option>
+        <option value="night">🌙 Night</option>
+      </select>
+      <input type="text" name="note" placeholder="Extra note (e.g. Birthday, Meeting)">
+      <button type="submit">Add Task</button>
+    </form>
+  </div>
+
+  <!-- Tasks Section -->
+  <div class="grid">
+    <div class="card morning">
+      <h2>🌅 Morning</h2>
+      <ul>
+        {% for task in categories.morning %} 
+          <li data-duedate="{{ task.due_date }}">
+            <strong>{{ task.title }}</strong>
+            {% if task.due_date %}<small> ({{ task.due_date }})</small>{% endif %}
+            {% if task.note %}<p class="note">📝 {{ task.note }}</p>{% endif %}
+            <div>
+              {% if not task.completed %}<a href="/complete/{{ task.id }}">✔</a>{% endif %}
+              <a href="/delete/{{ task.id }}">🗑</a>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card afternoon">
+      <h2>🌞 Afternoon</h2>
+      <ul>
+        {% for task in categories.afternoon %}
+          <li data-duedate="{{ task.due_date }}">
+            <strong>{{ task.title }}</strong>
+            {% if task.due_date %}<small> ({{ task.due_date }})</small>{% endif %}
+            {% if task.note %}<p class="note">📝 {{ task.note }}</p>{% endif %}
+            <div>
+              {% if not task.completed %}<a href="/complete/{{ task.id }}">✔</a>{% endif %}
+              <a href="/delete/{{ task.id }}">🗑</a>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card evening">
+      <h2>🌆 Evening</h2>
+      <ul>
+        {% for task in categories.evening %}
+          <li data-duedate="{{ task.due_date }}">
+            <strong>{{ task.title }}</strong>
+            {% if task.due_date %}<small> ({{ task.due_date }})</small>{% endif %}
+            {% if task.note %}<p class="note">📝 {{ task.note }}</p>{% endif %}
+            <div>
+              {% if not task.completed %}<a href="/complete/{{ task.id }}">✔</a>{% endif %}
+              <a href="/delete/{{ task.id }}">🗑</a>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card night">
+      <h2>🌙 Night</h2>
+      <ul>
+        {% for task in categories.night %}
+          <li data-duedate="{{ task.due_date }}">
+            <strong>{{ task.title }}</strong>
+            {% if task.due_date %}<small> ({{ task.due_date }})</small>{% endif %}
+            {% if task.note %}<p class="note">📝 {{ task.note }}</p>{% endif %}
+            <div>
+              {% if not task.completed %}<a href="/complete/{{ task.id }}">✔</a>{% endif %}
+              <a href="/delete/{{ task.id }}">🗑</a>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Reminder Script -->
+  <script>
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    function checkReminders() {
+      const tasks = document.querySelectorAll("li[data-duedate]");
+      const now = new Date();
+
+      tasks.forEach(task => {
+        const dueDate = task.getAttribute("data-duedate");
+        if (dueDate) {
+          const taskTime = new Date(dueDate);
+          const diff = (taskTime - now) / 1000;
+
+          if (diff > 0 && diff < 60) {
+            new Notification("⏰ Reminder", {
+              body: task.innerText,
+              icon: "https://cdn-icons-png.flaticon.com/512/2910/2910768.png"
+            });
+          }
+
+          if (taskTime < now && !task.classList.contains("completed")) {
+            task.style.background = "#ffe6e6";
+          }
+        }
+      });
+    }
+
+    setInterval(checkReminders, 30000);
+  </script>
+</body>
+</html>
